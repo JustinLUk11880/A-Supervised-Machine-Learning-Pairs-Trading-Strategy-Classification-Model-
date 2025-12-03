@@ -1,0 +1,10 @@
+# Raw Data Directory
+
+This folder contains raw downloaded price data for the stock pairs.
+
+## Files
+
+- `KO_PEP.csv` - Example: Coca-Cola (KO) and PepsiCo (PEP) price data
+- `AAPL_MSFT.csv` - Example: Apple (AAPL) and Microsoft (MSFT) price data
+
+Data should be downloaded using `notebooks/01_data_download.ipynb`
