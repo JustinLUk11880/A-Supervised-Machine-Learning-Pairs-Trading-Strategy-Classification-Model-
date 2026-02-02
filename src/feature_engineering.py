@@ -55,55 +55,26 @@ def hedge_ratio(x, y):
     variance = ((x - x_mean) ** 2).sum()/(len(x) - 1)
     return covariance / variance
 
-def calculate_spread(price1: pd.Series, price2: pd.Series) -> pd.Series:
+def hurst_exponent(ts, max_lag=100):
     """
-    Calculate the spread between two price series.
-    
-    Args:
-        price1: First price series
-        price2: Second price series
-    
-    Returns:
-        Spread series (price1 - price2)
+    Estimate the Hurst exponent of a time series.
+    ts: array-like (spread)
     """
-    return price1 - price2
+    ts = np.asarray(ts, dtype=float)
+    ts = ts[np.isfinite(ts)]
 
+    # lag is the time interval to analyze
+    lags = range(2, max_lag)
+    tau = [] # store the standard deviations of the differences in lags
 
-def calculate_zscore(series: pd.Series, window: int = 20) -> pd.Series:
-    """
-    Calculate the z-score of a series using rolling mean and std.
-    
-    Args:
-        series: Input series
-        window: Rolling window size
-    
-    Returns:
-        Z-score series
-    """
-    rolling_mean = series.rolling(window=window).mean()
-    rolling_std = series.rolling(window=window).std()
-    zscore = (series - rolling_mean) / rolling_std
-    return zscore
+    for lag in lags:
+        diff = ts[lag:] - ts[:-lag] # difference with lag
+        tau.append(np.sqrt(np.var(diff))) # store in tau
 
+    # tau(L) ∝ L^H
+    # log(tau) = H × log(L) + constant
+    # log-log regression
+    poly = np.polyfit(np.log(lags), np.log(tau), 1)
+    H = poly[0]
 
-def engineer_features(spread: pd.Series, window: int = 20) -> pd.DataFrame:
-    """
-    Engineer features from the spread.
-    
-    Args:
-        spread: Spread series
-        window: Rolling window size
-    
-    Returns:
-        DataFrame with engineered features
-    """
-    features = pd.DataFrame(index=spread.index)
-    
-    features['spread'] = spread
-    features['zscore'] = calculate_zscore(spread, window)
-    features['rolling_mean'] = spread.rolling(window=window).mean()
-    features['rolling_std'] = spread.rolling(window=window).std()
-    features['rolling_min'] = spread.rolling(window=window).min()
-    features['rolling_max'] = spread.rolling(window=window).max()
-    
-    return features.dropna()
+    return H
