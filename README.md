@@ -113,6 +113,8 @@ z-score with ±2 lines
 
 You have data_processed/features.csv with aligned dates and no weird length errors.
 
+- **Hurst exponent analysis completed:** Hurst exponent computed for the spread (mean-reversion indicated if H < 0.5).
+
 03_label_creation.ipynb
 Goal
 
