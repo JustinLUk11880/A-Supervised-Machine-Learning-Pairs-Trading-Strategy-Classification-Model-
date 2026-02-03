@@ -26,7 +26,7 @@ Do regime diagnostics (e.g. persistence measures) add predictive value?
 When does added model complexity stop helping?
 
 ## Methodology
-1. Data
+## 1. Data
 
 Daily adjusted close prices (2020–2026)
 
