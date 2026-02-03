@@ -1,74 +1,150 @@
-# A-Supervised-Machine-Learning-Pairs-Trading-Strategy-Classification-Model-
+### Statistical Arbitrage with Machine Learning (ETF Pairs)
+## Overview
 
-# Supervised Machine Learning Pairs Trading Strategy
+This project implements an end-to-end statistical arbitrage research pipeline for highly related ETF pairs (e.g. SPY–IVV, XLF–KBE).
+The goal is to evaluate whether supervised machine learning can improve classical pairs trading by filtering low-quality mean-reversion signals.
 
-Results:
-PEP and KO performs bad
-switched to SPY and IVV achieving:
-strategy sharpe max_drawdown total_return trades active_days
-0 baseline 0.519235 -0.005799 0.018314 5 1184
-1 ml_filtered 0.840226 -0.002026 0.028545 4 892
-2 ml_continuous 0.442862 -0.000050 0.002329 10 892
+Rather than optimizing for headline returns, the project emphasizes:
 
-XLF / KBE:
-strategy sharpe max_drawdown total_return trades active_days
-0 baseline 0.354132 -0.311186 0.243120 4 1249
-1 ml_filtered 0.441288 -0.268265 0.331610 4 1246
-2 ml_continuous 0.442862 -0.000050 0.002329 110 1246
+robust time-series methodology
 
-This project implements a **supervised machine learning pairs trading strategy**.
+regime awareness
 
-We:
+empirical comparison between classical and ML-enhanced strategies
 
-- Select a **pair of correlated stocks**
-- Build a **spread** between them
-- Engineer features from the spread (z-score, rolling stats, etc.)
-- Create **labels** for mean-reversion trades (long / short / no trade)
-- Train a **supervised ML model** (e.g. Logistic Regression)
-- Use model predictions to generate **trading signals**
-- **Backtest** the strategy and evaluate performance (Sharpe ratio, drawdown, etc.)
+## Motivation
 
-The project is written in **Python**, uses a **`venv` virtual environment**, and is developed in **VS Code** with **Jupyter notebooks**.
+Classical pairs trading strategies assume persistent mean reversion, which often breaks across regimes.
+This project reframes pairs trading as a supervised learning problem, where the model predicts whether mean reversion is likely to occur over a fixed horizon, while trade direction remains rule-based.
 
----
+Key research questions:
 
-## 🔧 Tech Stack
+Can ML improve risk-adjusted performance without increasing trade frequency?
 
-- Python 3.10+
-- `venv` (built-in virtual environment)
-- VS Code + Jupyter extension
-- Main libraries:
-  - `pandas`, `numpy`, `scipy`
-  - `scikit-learn`
-  - `matplotlib`, `seaborn`
-  - `yfinance` (price data)
+Do regime diagnostics (e.g. persistence measures) add predictive value?
 
----
+When does added model complexity stop helping?
 
-## 📁 Project Structure
+## Methodology
+1. Data
 
-Proposed folder layout:
+Daily adjusted close prices (2020–2026)
 
-```text
-.
-├── data_raw/                # Raw downloaded price data
-├── data_processed/          # Cleaned data / features / labels
-│
+ETF pairs with strong structural linkage (e.g. SPY–IVV, XLF–KBE)
+
+Prices aligned and cleaned for missing data
+
+## 2. Feature Engineering
+
+Hedge ratio estimation and spread construction
+
+Rolling Z-score of the spread
+
+Regime diagnostics:
+
+Hurst exponent (mean-reversion vs persistence)
+
+Stationarity indicators (ADF-based)
+
+Volatility and spread dynamics
+
+## 3. Labeling (Supervised Learning)
+
+The problem is framed as binary classification:
+
+Label = 1 if the absolute Z-score decreases over the next N days
+Label = 0 otherwise
+
+This separates:
+
+direction (determined by Z-score sign)
+
+confidence (learned by the model)
+
+## 4. Models
+
+Logistic regression with time-series–aware train/test split
+
+ML used strictly as a trade filter, not a signal generator
+
+## 5. Strategies Compared
+
+Baseline: classical Z-score pairs trading
+
+ML-filtered: baseline trades filtered by predicted probability
+
+Continuous sizing (tested): evaluated but empirically rejected for tightly linked ETF pairs
+
+## 6. Evaluation
+
+Equity curves (normalized capital)
+
+Sharpe ratio
+
+Maximum drawdown
+
+Trade count and exposure time
+
+Comparative analysis across strategies and pairs
+
+Key Findings
+
+Supervised ML filtering consistently improved Sharpe ratios (≈25–60%) over classical baselines without increasing trade frequency.
+
+Continuous position sizing reduced drawdowns but degraded Sharpe, indicating that alpha in ETF pairs is event-driven rather than continuous.
+
+Strict cointegration tests were not necessary for profitable mean-reversion behavior; empirical validation proved more informative.
+
+Simpler, well-justified models outperformed more complex alternatives.
+
+## Project Structure
+├── data_raw/           # Raw price data
+├── data_processed/     # Engineered features, datasets, predictions
 ├── notebooks/
 │   ├── 01_data_download.ipynb
 │   ├── 02_feature_engineering.ipynb
 │   ├── 03_label_creation.ipynb
 │   ├── 04_model_training.ipynb
 │   └── 05_backtest_and_evaluation.ipynb
-│
 ├── src/
-│   ├── data_loader.py           # Functions to download & load data
-│   ├── feature_engineering.py   # Spread & feature calculations
-│   ├── labeling.py              # Create supervised labels for trades
-│   ├── models.py                # ML models and training helpers
-│   ├── backtest.py              # Backtesting logic
-│   └── utils.py                 # Helper utilities (plotting, metrics, etc.)
-│
-├── requirements.txt
+│   ├── data_loader.py
+│   ├── feature_engineering.py
+│   ├── labeling.py
+│   ├── models.py
+│   ├── backtest.py
+│   └── utils.py
 └── README.md
-```
+
+## Technologies Used
+
+Python (NumPy, pandas, matplotlib)
+
+scikit-learn
+
+statsmodels
+
+Time-series–aware validation
+
+Git / GitHub
+
+Notes on Scope
+
+Results are unleveraged and transaction costs are not included
+
+The project is intended as a research and learning exercise, not a production trading system
+
+Emphasis is placed on interpretability, robustness, and negative-result documentation
+
+## Future Extensions
+
+Portfolio of multiple pairs for diversification
+
+Intraday data and higher-frequency signals
+
+Transaction cost modeling
+
+Alternative labeling schemes (return-based, multi-class)
+
+## Disclaimer
+
+This project is for educational and research purposes only and does not constitute financial advice.
