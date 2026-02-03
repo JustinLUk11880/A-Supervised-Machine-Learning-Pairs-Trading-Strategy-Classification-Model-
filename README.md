@@ -2,11 +2,25 @@
 
 # Supervised Machine Learning Pairs Trading Strategy
 
+Results:
+PEP and KO performs bad
+switched to SPY and IVV achieving:
+strategy sharpe max_drawdown total_return trades active_days
+0 baseline 0.519235 -0.005799 0.018314 5 1184
+1 ml_filtered 0.840226 -0.002026 0.028545 4 892
+2 ml_continuous 0.442862 -0.000050 0.002329 10 892
+
+XLF / KBE:
+strategy sharpe max_drawdown total_return trades active_days
+0 baseline 0.354132 -0.311186 0.243120 4 1249
+1 ml_filtered 0.441288 -0.268265 0.331610 4 1246
+2 ml_continuous 0.442862 -0.000050 0.002329 110 1246
+
 This project implements a **supervised machine learning pairs trading strategy**.
 
 We:
 
-- Select a **pair of correlated stocks** (e.g. KO & PEP or AAPL & MSFT)
+- Select a **pair of correlated stocks**
 - Build a **spread** between them
 - Engineer features from the spread (z-score, rolling stats, etc.)
 - Create **labels** for mean-reversion trades (long / short / no trade)
